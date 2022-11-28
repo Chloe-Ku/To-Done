@@ -154,66 +154,6 @@
             display: block;
         }
 
-        .rightsidebar hr {
-            height: 2px;
-            background-color: #0fa662;
-            border: none;
-            width: 87%;
-        }
-
-        .rightsidebar {
-            height: 100%;
-            width: 350px;
-            margin-top: 49px;
-            position: fixed;
-            top: 0;
-            right: 0;
-            background-color: #eee;
-            overflow-x: hidden;
-            padding-top: 10px;
-            padding-right: 10px;
-            {#margin: 0;#}
-        }
-
-        .rightsidebar a {
-            padding: 6px 8px 6px 16px;
-            text-decoration: none;
-            font-size: 20px;
-            color: #000000;
-            display: block;
-        }
-
-        .rightsidebar form {
-            padding: 6px 8px 6px 16px;
-            text-decoration: none;
-            font-size: 20px;
-            color: #000000;
-            display: block;
-        }
-
-        .rightsidebar textarea {
-            width: 325px;
-        }
-
-        .rightsidebar .save-button {
-            padding: 9px;
-            background: #d9d9d9;
-            color: #555;
-            float: left;
-            text-align: center;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.3s;
-            border-radius: 10px;
-            display: inline-block;
-            border: 0;
-            margin-top: 10px;
-        }
-
-        .rightsidebar .save-button:hover {
-          background-color: #bbb;
-        }
-
         .main {
             margin-left: 250px; /* Same as the width of the sidenav */
             margin-right: 350px; /* Same as the width of the sidenav */
@@ -331,6 +271,12 @@
           display: block;
         }
 
+        /* Style the input color*/
+        .main input[type=color] {
+          display: block;
+          margin-bottom: 5px;
+        }
+
         /* Style the input checkbox within unordered list item */
         .main ul li input[type=checkbox] {
           position: absolute;
@@ -407,6 +353,106 @@
             padding-left: 5px;
         }
 
+        /* Style the "customize" button */
+        .main .add-cust-color-button{
+            position: absolute;
+            right: 50px;
+            top: 0;
+            display: inline-block;
+            cursor: pointer;
+            border-radius: 10px;
+            background: #0fa662;
+            color: #f9f9f9;
+            border: 0;
+            font-size: 16px;
+            height: 37px;
+            padding: 0 11px;
+            margin-top: 5px;
+            width: 10%;
+            text-align: center;
+            min-width: 100px;
+            font-weight: 300;
+        }
+
+        .main .add-cust-color-button:hover{
+            background: #0b8f54;
+        }
+
+        /* The popup form - hidden by default */
+        .form-popup {
+            display: none;
+            height: 100%;
+            width: 350px;
+            margin-top: 49px;
+            position: fixed;
+            top: 0;
+            right: 0;
+            background-color: #eee;
+            overflow-x: hidden;
+            padding-top: 10px;
+            padding-right: 10px;
+            {#margin: 0;#}
+        }
+
+        /* Add styles to the form container */
+        .form-container {
+            max-width: 320px;
+            padding: 10px;
+        }
+
+        /* Full-width input fields */
+        .form-container input[type=text] {
+            width: 100%;
+            margin: 5px 0 22px 0;
+            border: none;
+            background: white;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 16px;
+            box-shadow: 1px 1px 5px #555 inset;
+            white-space: nowrap;
+            display: block;
+        }
+
+        /* When the inputs get focus, do something */
+        .form-container input[type=text]:focus {
+            background-color: #f1f1f1;
+            outline: none;
+        }
+
+        .form-container textarea {
+            width: 100%;
+            height: 200px;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px #555 inset;
+            margin: 5px 0 22px 0;
+            font-size: 14px;
+        }
+
+        /* Set a style for the submit/login button */
+        .form-container .btn {
+            background-color: #04AA6D;
+            color: white;
+            padding: 16px 20px;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            margin-top:10px;
+            margin-bottom:10px;
+            opacity: 0.8;
+        }
+
+        /* Add a red background color to the cancel button */
+        .form-container .cancel {
+            background-color: red;
+        }
+
+        /* Add some hover effects to buttons */
+        .form-container .btn:hover, .open-button:hover {
+            opacity: 1;
+        }
+
     </style>
     <meta charset="UTF-8">
     <title>To-Done</title>
@@ -471,6 +517,10 @@
                   <label for="{{ "InputDue_"|addstr:list.id }}">Due Date</label>
                   <input type="date" class="form-control" id="{{ "InputDue_"|addstr:list.id }}">
                 </div>
+                <div class="form-group">
+                    <label for="{{ "InputColor_"|addstr:list.id }}">Color Tag</label>
+                    <input type="color" class="form-control" id="{{ "InputColor_"|addstr:list.id }}" value="#f9f9f9">
+                </div>
             </form>
             <div>
                 <span onclick="newElement({{ list.id }})" class="addBtn">Add</span>
@@ -480,9 +530,9 @@
             {% for list_item in latest_list_items %}
                 {% if list_item.list_id == list.id %}
                     {% if not list_item.is_done %}
-                        <li class="listItem">
+                        <li style="background-color:{{list_item.tag_color}};" class="listItem">
                     {% else %}
-                        <li class="listItem done">
+                        <li style="background-color:{{list_item.tag_color}};" class="listItem done">
                     {% endif %}
                     {% if not list_item.is_done %}
                             <input type="checkbox" id="{{ "ListItem_"|addstr:list_item.id }}" name="{{ "ListItem_"|addstr:list_item.id }}" value="{{ "ListItem_"|addstr:list_item.id }}">
@@ -494,6 +544,7 @@
                             <label for="{{ "ListItem_"|addstr:list_item.id }}" class = "text-right">Start date: {{ list_item.created_on }}</label>
                             <label for="{{ "ListItem_"|addstr:list_item.id }}" style="color:{{list_item.color}};">Due date: {{ list_item.due_date }}</label>
                             <p> It took you: {{ list_item.finished_on|timeuntil:list_item.created_on }} to complete</p>
+                            <button class="add-cust-color-button" onclick="openForm()">Modify</button>
                             <span class="close">x</span>
                         </li>
                 {% endif %}
@@ -540,6 +591,10 @@
                       <label for="{{ "InputDue_"|addstr:list.id }}">Due Date</label>
                       <input type="date" class="form-control" id="{{ "InputDue_"|addstr:list.id }}">
                     </div>
+                    <div class="form-group">
+                        <label for="{{ "InputColor_"|addstr:list.id }}">Color Tag</label>
+                        <input type="color" class="form-control" id="{{ "InputColor_"|addstr:list.id }}" value="#f9f9f9">
+                    </div>
                 </form>
                 <div>
                     <span onclick="newElement({{ list.id }})" class="addBtn">Add</span>
@@ -549,9 +604,9 @@
                 {% for list_item in latest_list_items %}
                     {% if list_item.list_id == list.id %}
                         {% if not list_item.is_done %}
-                            <li class="listItem">
+                            <li style="background-color:{{list_item.tag_color}};" class="listItem">
                         {% else %}
-                            <li class="listItem done">
+                            <li style="background-color:{{list_item.tag_color}};" class="listItem done">
                         {% endif %}
                         {% if not list_item.is_done %}
                                 <input type="checkbox" id="{{ "ListItem_"|addstr:list_item.id }}" name="{{ "ListItem_"|addstr:list_item.id }}" value="{{ "ListItem_"|addstr:list_item.id }}">
@@ -563,6 +618,7 @@
                                 <label for="{{ "ListItem_"|addstr:list_item.id }}" class="text-right">Start date: {{ list_item.created_on }}</label>
                                 <label for="{{ "ListItem_"|addstr:list_item.id }}" style="color:{{list_item.color}};">Due: {{list_item.due_date}}</label>
                                 <p> It took you: {{ list_item.finished_on|timeuntil:list_item.created_on }} to complete</p>
+                                <button class="add-cust-color-button" onclick="openForm({{ list_item.id }})">Modify</button>
                                 <span class="close">x</span>
                             </li>
                     {% endif %}
@@ -589,21 +645,36 @@
     </div>
 
     {% if latest_lists or shared_list %}
-        <ul class="rightsidebar" id = "rightsidebar">
-            <li><a>List name</a></li>
-            <li><a>Item name</a></li>
-            <li hidden><a></a></li>
-            <form action="/updateListItem/0" method="post">
-                <p><label for="note">Note:</label></p>
-                <textarea id="note" name="note" rows="4" cols="50">
-                </textarea>
-                <br>
-                <input class="save-button" type="submit" value="Save">
-            </form>
-        </ul>
+    <div class="form-popup" id="myForm">
+        <form action="/action_page.php" class="form-container" method = "post">
+            {% csrf_token %}
+            <h2>Task Modification</h2>
+            <label for="task"><b>Task Name</b></label>
+            <input type="text" name="task">
+            <label for="note"><b>Note</b></label>
+            <textarea id="note" name="note" rows="4" cols="50">
+            </textarea>
+            <br>                     
+            <button type="button" class="btn">Save</button>
+            <button type="button" class="btn cancel" onclick="closeForm()">Close</button>
+        </form>
+    </div>
     {% endif %}
 </body>
 <script>
+
+// Click on the bottom to open the pop-up tasks customized form
+function openForm(list_item_id) {
+    document.getElementById("myForm").style.display = "block";
+    var list = document.getElementsByClassName("listItemsUnorderedList");
+   // console.log(list);
+}
+
+// Click on the bottom to close the pop-up tasks customized form
+function closeForm() {
+  document.getElementById("myForm").style.display = "none";
+}
+
 // Click on a close button to hide the current list item
 var close = document.getElementsByClassName("close");
 var i;
@@ -629,6 +700,7 @@ function removeListItem() {
 
 // When click a list item, restore all othe
 var list = document.getElementsByClassName("listItemsUnorderedList");
+//console.log(list);
 for(let i = 0; i < list.length; i++) {
     list[i].addEventListener('click', function (ev) {
         if (ev.target.tagName === 'LI') {
@@ -745,6 +817,7 @@ function newElement(list_id, saved_to_database = true) {
     var inputBox = document.getElementById("InputText_" + list_id.toString());
     var inputValue = inputBox.value;
     var inputDue = document.getElementById("InputDue_" + list_id.toString()).value;
+    var inputColor = document.getElementById("InputColor_" + list_id.toString()).value;
     // var unorderedList = inputBox.parentElement.nextElementSibling
 
     {#var list_html_tag_id =  #}
@@ -800,7 +873,8 @@ function newElement(list_id, saved_to_database = true) {
             "list_id": list_id,
             "list_item_name": inputValue,
             "create_on": create_on_timestamp,
-            "due_date": inputDue
+            "due_date": inputDue,
+            "tag_color": inputColor
         }
         httpRequest.send(JSON.stringify(params))
     }
