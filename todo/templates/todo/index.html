@@ -6,7 +6,31 @@
             font-family: Calibri, Helvetica, sans-serif;
             margin: 0;
         }
-               
+/* Dark Mode Button Styles */
+    #theme-toggle {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 12px;
+        background-color: #f5e79e;
+        color: #333;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Hover and Active Effects for the Button */
+    #theme-toggle:hover {
+        background-color: #e9db8e;
+        color: #0fa662;
+        transform: scale(1.05);
+    }
+
+    #theme-toggle:active {
+        background-color: #d6c27a;
+        box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }               
         /* Dark mode styles */
         body.dark-mode {
             background-color: #121212;
