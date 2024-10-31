@@ -1,6 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.utils import timezone
+from pytz import timezone as pytz_timezone
 
+desired_timezone = pytz_timezone('America/New_York')
+
+class TodoTemplate(models.Model):
+    # Other fields
+    due_date = models.DateField(null=True, blank=True)
 class List(models.Model):
     title_text = models.CharField(max_length=100)
     created_on = models.DateTimeField()
@@ -27,6 +34,11 @@ class ListTags(models.Model):
 
 class ListItem(models.Model):
     # the name of a list item
+    PRIORITY_CHOICES = [(1, 'High'), (2, 'Medium'), (3, 'Low')]
+    priority = models.PositiveSmallIntegerField(
+        choices = PRIORITY_CHOICES,
+        default = 2
+    )
     item_name = models.CharField(max_length=50, null=True, blank=True)
     # the text note of a list item
     item_text = models.CharField(max_length=100)
@@ -34,13 +46,31 @@ class ListItem(models.Model):
     created_on = models.DateTimeField()
     list = models.ForeignKey(List, on_delete=models.CASCADE)
     finished_on = models.DateTimeField()
-    due_date = models.DateField()
+    due_date = models.DateTimeField()
     tag_color = models.CharField(max_length=10)
+    delay = models.IntegerField(default=0)
+    completion_time = models.IntegerField(default=0)
 
     objects = models.Manager()
 
     def __str__(self):
         return "%s: %s" % (str(self.item_text), self.is_done)
+    
+    def calculate_delay(self):
+        if self.is_done and self.finished_on and self.due_date:
+            delay_days = (self.finished_on.date() - self.due_date.date()).days # This is getting the delay in days
+            if delay_days >= 0:
+                self.delay = delay_days
+
+    def calculate_completion_time(self):
+        if self.is_done and self.finished_on and self.created_on:
+            # Chat GPT Assisted in making timezone aware
+            finished_on = timezone.make_aware(self.finished_on) if timezone.is_naive(self.finished_on) else self.finished_on
+            created_on = timezone.make_aware(self.created_on) if timezone.is_naive(self.created_on) else self.created_on
+            #print(finished_on)
+            #print(created_on)
+            #print(finished_on - created_on)
+            self.completion_time = (finished_on - created_on).days
 
 
 class Template(models.Model):

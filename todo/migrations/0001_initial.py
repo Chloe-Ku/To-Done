@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
                 ('is_done', models.BooleanField(default=False)),
                 ('created_on', models.DateTimeField()),
                 ('finished_on', models.DateTimeField()),
-                ('due_date', models.DateField()),
+                ('due_date', models.DateTimeField()),
                 ('tag_color', models.CharField(max_length=10)),
                 ('list', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='todo.list')),
             ],

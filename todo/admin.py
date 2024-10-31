@@ -1,3 +1,5 @@
-from django.contrib import admin
+"""
+This module defines admin for the todo app.
+"""
 
 # Register your models here.

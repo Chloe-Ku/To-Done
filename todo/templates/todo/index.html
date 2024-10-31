@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,6 +7,135 @@
             font-family: Calibri, Helvetica, sans-serif;
             margin: 0;
         }
+/* Dark Mode Button Styles */
+    #theme-toggle {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 12px;
+        background-color: #f5e79e;
+        color: #333;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Hover and Active Effects for the Button */
+    #theme-toggle:hover {
+        background-color: #e9db8e;
+        color: #0fa662;
+        transform: scale(1.05);
+    }
+
+    #theme-toggle:active {
+        background-color: #d6c27a;
+        box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }               
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+
+        /* Topbar dark mode */
+        .dark-mode .topbar {
+            background-color: #1f1f1f;
+        }
+
+        /* Sidenav and rightsidebar dark mode */
+        .dark-mode .sidenav, 
+        .dark-mode .rightsidebar {
+            background-color: #333;
+        }
+
+        /* Links in dark mode */
+        .dark-mode .sidenav a, 
+        .dark-mode .rightsidebar a {
+            color: #ccc;
+        }
+
+        .dark-mode .sidenav a:hover {
+            color: #0fa662;
+        }
+
+        /* Make list items readable in dark mode */
+        .dark-mode .main ul li {
+            background-color: #444;
+            color: white;
+        }
+
+        /* Button styles in dark mode */
+        .dark-mode .add-template-button {
+            background-color: #333;
+            color: white;
+        }
+
+        .dark-mode .add-template-button:hover {
+            background-color: #555;
+        }
+
+        /* Ensure all general text in dark mode is readable */
+        .dark-mode h2, 
+        .dark-mode p, 
+        .dark-mode label, 
+        .dark-mode a {
+            color: #0fa662;
+        }
+
+        /* Style form input fields with a pale yellow background in dark mode */
+        .dark-mode input[type=text], 
+        .dark-mode input[type=password], 
+        .dark-mode input[type=email], 
+        .dark-mode input[type=date], 
+        .dark-mode textarea {
+            background-color: #f5e79e; /* Pale yellow */
+            color: black;  /* Keep the text color dark for contrast */
+            border: none;
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px #555 inset;
+        }
+        /* Target all labels or spans that contain 'Due:' 
+        /* Target the due date text inside task list items */
+        .main ul li label[for*="due"], /* If due date is inside a label */
+        .main ul li span.due-date,     /* If due date has a class 'due-date' */
+        .main ul li .due-date-label {   /* Use this if there’s a class applied to 'Due' date labels */
+            color: #0fa662; /* Set the due date text to green */
+        }
+
+
+        /* Style the "x" button (close) to have the same green color */
+        .main ul li .close {
+            color: #0fa662;
+        }
+
+        /* Optionally change the hover effect of the "x" button */
+        .main ul li .close:hover {
+            background-color: #0b8f54; /* Darker green when hovered */
+            color: white;
+        }
+
+        /* Style form input fields' hover and focus states in dark mode */
+        .dark-mode input[type=text]:focus, 
+        .dark-mode input[type=password]:focus, 
+        .dark-mode input[type=email]:focus, 
+        .dark-mode input[type=date]:focus, 
+        .dark-mode textarea:focus {
+            background-color: #e9db8e; /* Slightly darker pale yellow when focused */
+        }
+
+        /* Dark mode for the "Add" button and similar elements */
+        .dark-mode .addBtn, 
+        .dark-mode .save-button {
+            background-color: #555;
+            color: white;
+        }
+
+        .dark-mode .addBtn:hover, 
+        .dark-mode .save-button:hover {
+            background-color: #777;
+        }
+
 
         ul {
             list-style: none;
@@ -90,6 +220,17 @@
           box-shadow: 1px 1px 5px #555 inset;
           white-space: nowrap;
           display: block;
+        }
+
+        .main select {
+            border: none;
+            border-radius: 10px;
+            width: 75%;
+            padding: 10px;
+            font-size: 16px;
+            box-shadow: 1px 1px 5px #555 inset;
+            white-space: nowrap;
+            display: block;
         }
 
         .sidenav div {
@@ -440,9 +581,14 @@
 
     </style>
     <meta charset="UTF-8">
+    <meta name="vapid-key" content="{{ vapid_key }}">
+    {% if user.id %}
+        <meta name="user_id" content="{{ user.id }}">
+    {% endif %}
     <title>To-Done</title>
 </head>
 <body>
+    <script src="{% static '/js/registerSw.js' %}"></script>
     {% load todo_extras %}
     <div class="topbar">
         <ul>
@@ -450,6 +596,7 @@
             <li><a class="tabs" href="/todo">Lists</a></li>
             <li><a class="tabs" href="/templates">Templates</a></li>
         </ul>
+
 		<ul style="float: right;">
 		{% if user.is_authenticated %}
             <li><a href="#">Welcome, {{user.username}}</a></li>
@@ -457,6 +604,9 @@
 		{% else %}
 		  <li><a class="tabs" href="/login">Login</a></li>
 		{% endif %}
+          <li>
+            <button id="theme-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+          </li>
 		</ul>
     </div>
     <div class="sidenav">
@@ -472,6 +622,12 @@
         <input type="hidden" id="newListTag" placeholder="New List tag">
         <input type="text" id="sharedUser" placeholder="Share this list with...">
         <span onclick="newTodoList()" class="addTodoList">Add</span>
+
+        <div class="metrics">
+            <h3>Task Completion Metrics</h3>
+            <p>On-Time Completion Rate: {{ on_time_rate }}%</p>
+            <p>Average Delay for Late Tasks: {{ avg_delay }} days</p>
+        </div>
     </div>
 
     <div class="main">
@@ -500,11 +656,19 @@
                 </div>
                 <div class="form-group">
                   <label for="{{ "InputDue_"|addstr:list.id }}">Due Date</label>
-                  <input type="date" class="form-control" id="{{ "InputDue_"|addstr:list.id }}">
+                  <input type="datetime-local" class="form-control" id="{{ "InputDue_"|addstr:list.id }}">
                 </div>
 		        <div class="form-group">
                     <label for="{{ "InputColor_"|addstr:list.id }}">Color Tag</label>
                     <input type="color" class="form-control" id="{{ "InputColor_"|addstr:list.id }}" value="#f9f9f9">
+                </div>
+                <div class="form-group">
+                    <label for="InputPriority_{{ list.id }}">Priority</label>
+                    <select id="InputPriority_{{ list.id }}" class="form-control">
+                        <option value="1">High</option>
+                        <option value="2" selected>Medium</option>
+                        <option value="3">Low</option>
+                    </select>
                 </div>
             </form>
             <div>
@@ -527,7 +691,8 @@
                             <label for="{{ "ListItem_"|addstr:list_item.id }}">{{ list_item.item_name }}</label>
                             <br>
                             <label for="{{ "ListItem_"|addstr:list_item.id }}" class = "text-right">Start date: {{ list_item.created_on }}</label>
-                            <label for="{{ "ListItem_"|addstr:list_item.id }}" style="color:{{list_item.color}};">Due date: {{ list_item.due_date }}</label>
+                            <label for="{{ "ListItem_"|addstr:list_item.id }}" style="color:{{list_item.color}};">Due date: {{ list_item.due_date }}.</label>
+                            <label for="{{ "ListItem_"|addstr:list_item.id }}" class = "text-right">Priority: {{ list_item.priority }}</label>
                             {% if list_item.is_done == 1%}
                                 <p> It took you: {{ list_item.finished_on|timeuntil:list_item.created_on }} to complete</p>
                             {% endif %}
@@ -575,11 +740,19 @@
                     </div>
                     <div class="form-group">
                       <label for="{{ "InputDue_"|addstr:list.id }}">Due Date</label>
-                      <input type="date" class="form-control" id="{{ "InputDue_"|addstr:list.id }}">
+                      <input type="datetime-local" class="form-control" id="{{ "InputDue_"|addstr:list.id }}">
                     </div>
 		            <div class="form-group">
                         <label for="{{ "InputColor_"|addstr:list.id }}">Color Tag</label>
                         <input type="color" class="form-control" id="{{ "InputColor_"|addstr:list.id }}" value="#f9f9f9">
+                    </div>
+                    <div class="form-group">
+                        <label for="InputPriority_{{ list.id }}">Priority</label>
+                        <select id="InputPriority_{{ list.id }}" class="form-control">
+                            <option value="1">High</option>
+                            <option value="2" selected>Medium</option>
+                            <option value="3">Low</option>
+                        </select>
                     </div>
                 </form>
                 <div>
@@ -602,7 +775,8 @@
                                 <label for="{{ "ListItem_"|addstr:list_item.id }}">{{ list_item.item_name }}</label>
                                 <br>
                                 <label for="{{ "ListItem_"|addstr:list_item.id }}" class="text-right">Start date: {{ list_item.created_on }}</label>
-                                <label for="{{ "ListItem_"|addstr:list_item.id }}" style="color:{{list_item.color}};">Due: {{list_item.due_date}}</label>
+                                <label for="{{ "ListItem_"|addstr:list_item.id }}" style="color:{{list_item.color}};">Due: {{list_item.due_date}}.</label>
+                                <label for="{{ "ListItem_"|addstr:list_item.id }}" class = "text-right">Priority: {{ list_item.priority }}</label>
                                 {% if list_item.is_done == 1%}
                                     <p> It took you: {{ list_item.finished_on|timeuntil:list_item.created_on }} to complete</p>
                                 {% endif %}
@@ -645,8 +819,28 @@
             </form>
         </ul>
     {% endif %}
+    <script>
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        
+        // Save the user's preference in localStorage
+        if (document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // Load the user's preference from localStorage when the page loads
+    window.onload = function() {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    }
+</script>
+
 </body>
-<script>
+<script defer>
 // Click on a close button to hide the current list item
 var close = document.getElementsByClassName("close");
 var i;
@@ -669,6 +863,27 @@ function removeListItem() {
     }
     httpRequest.send(JSON.stringify(params))
 }
+
+function checkForNotifications(){
+	console.log('called evry minute')
+
+    const meta = document.querySelector('meta[name="user_id"]');
+    const id = meta ? meta.content : null;
+
+    var today = new Date()
+    var timestamp = today.getTime() / 1000
+
+    var httpRequest = new XMLHttpRequest()
+    httpRequest.open('POST', '/checkForNotifications');
+    httpRequest.setRequestHeader('Content-Type', "application/json;charset=UTF-8")
+    var params = {
+        "timestamp": timestamp,
+        "id": id
+    }
+    httpRequest.send(JSON.stringify(params))
+}
+
+setInterval(checkForNotifications, 60000);
 
 // When click a list item, restore all othe
 var list = document.getElementsByClassName("listItemsUnorderedList");
@@ -790,6 +1005,7 @@ function newElement(list_id, saved_to_database = true) {
     var inputValue = inputBox.value;
     var inputDue = document.getElementById("InputDue_" + list_id.toString()).value;
     var inputColor = document.getElementById("InputColor_" + list_id.toString()).value;
+    var inputPriority = document.getElementById("InputPriority_" + list_id.toString()).value
     // var unorderedList = inputBox.parentElement.nextElementSibling
 
     {#var list_html_tag_id =  #}
@@ -810,7 +1026,9 @@ function newElement(list_id, saved_to_database = true) {
     if(saved_to_database && inputValue !== '') {
         var httpRequest = new XMLHttpRequest()
         var today = new Date()
-        var create_on_timestamp = today.getTime() / 1000
+        var create_on_timestamp = (today.getTime() / 1000) + 3840
+        var due_date_epoch = new Date(inputDue)
+        due_date_epoch = (due_date_epoch.getTime() / 1000) + 3840
         httpRequest.onreadystatechange = function() {
             if (this.readyState === 4 && this.status === 200) {
                 // get the newly created item's id and set it as the id of the html tag
@@ -839,14 +1057,16 @@ function newElement(list_id, saved_to_database = true) {
                 li.appendChild(span);
             }
         };
+        console.log(due_date_epoch)
         httpRequest.open('POST', '/addNewListItem');
         httpRequest.setRequestHeader('Content-Type', "application/json;charset=UTF-8")
         var params = {
             "list_id": list_id,
             "list_item_name": inputValue,
             "create_on": create_on_timestamp,
-            "due_date": inputDue,
-	        "tag_color": inputColor
+            "due_date": due_date_epoch,
+	        "tag_color": inputColor,
+            "priority": inputPriority
         }
         httpRequest.send(JSON.stringify(params))
     }

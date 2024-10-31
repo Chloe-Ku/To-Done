@@ -47,7 +47,11 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'crispy_bootstrap4',
+    'webpush',
 ]
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -78,6 +82,16 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'smarttodo.wsgi.application'
+
+
+# Vapid Keys to allow for push notifications
+# TODO
+
+WEBPUSH_SETTINGS = {
+   "VAPID_PUBLIC_KEY": "BKSxqb6kx7TK8hrI8yZyyvNmIVQOWNWjMdzA9MTFX9ayYXJuVdbDrhpzlsvLecwg4Kf3a-wHI0NCwuGSc3683ZY",
+   "VAPID_PRIVATE_KEY": "T1pGGuqym63NrtaDkRTmgkEk9rSJNJiLYsRDiWYxgg4",
+   "VAPID_ADMIN_EMAIL": "jimmylegtree@gmail.com"
+}
 
 
 # Database
@@ -128,6 +142,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

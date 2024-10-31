@@ -6,7 +6,134 @@
             font-family: Calibri, Helvetica, sans-serif;
             margin: 0;
         }
+/* Dark Mode Button Styles */
+    #theme-toggle {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 12px;
+        background-color: #f5e79e;
+        color: #333;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: background-color 0.3s ease, color 0.3s ease, transform 0.2s ease;
+        box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    }
 
+    /* Hover and Active Effects for the Button */
+    #theme-toggle:hover {
+        background-color: #e9db8e;
+        color: #0fa662;
+        transform: scale(1.05);
+    }
+
+    #theme-toggle:active {
+        background-color: #d6c27a;
+        box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.3);
+    }               
+        /* Dark mode styles */
+        body.dark-mode {
+            background-color: #121212;
+            color: white;
+        }
+
+        /* Topbar dark mode */
+        .dark-mode .topbar {
+            background-color: #1f1f1f;
+        }
+
+        /* Sidenav and rightsidebar dark mode */
+        .dark-mode .sidenav, 
+        .dark-mode .rightsidebar {
+            background-color: #333;
+        }
+
+        /* Links in dark mode */
+        .dark-mode .sidenav a, 
+        .dark-mode .rightsidebar a {
+            color: #ccc;
+        }
+
+        .dark-mode .sidenav a:hover {
+            color: #0fa662;
+        }
+
+        /* Make list items readable in dark mode */
+        .dark-mode .main ul li {
+            background-color: #444;
+            color: white;
+        }
+
+        /* Button styles in dark mode */
+        .dark-mode .add-template-button {
+            background-color: #333;
+            color: white;
+        }
+
+        .dark-mode .add-template-button:hover {
+            background-color: #555;
+        }
+
+        /* Ensure all general text in dark mode is readable */
+        .dark-mode h2, 
+        .dark-mode p, 
+        .dark-mode label, 
+        .dark-mode a {
+            color: #0fa662;
+        }
+
+        /* Style form input fields with a pale yellow background in dark mode */
+        .dark-mode input[type=text], 
+        .dark-mode input[type=password], 
+        .dark-mode input[type=email], 
+        .dark-mode input[type=date], 
+        .dark-mode textarea {
+            background-color: #f5e79e; /* Pale yellow */
+            color: black;  /* Keep the text color dark for contrast */
+            border: none;
+            border-radius: 10px;
+            box-shadow: 1px 1px 5px #555 inset;
+        }
+        /* Target all labels or spans that contain 'Due:' 
+        /* Target the due date text inside task list items */
+        .main ul li label[for*="due"], /* If due date is inside a label */
+        .main ul li span.due-date,     /* If due date has a class 'due-date' */
+        .main ul li .due-date-label {   /* Use this if there’s a class applied to 'Due' date labels */
+            color: #0fa662; /* Set the due date text to green */
+        }
+
+
+        /* Style the "x" button (close) to have the same green color */
+        .main ul li .close {
+            color: #0fa662;
+        }
+
+        /* Optionally change the hover effect of the "x" button */
+        .main ul li .close:hover {
+            background-color: #0b8f54; /* Darker green when hovered */
+            color: white;
+        }
+
+        /* Style form input fields' hover and focus states in dark mode */
+        .dark-mode input[type=text]:focus, 
+        .dark-mode input[type=password]:focus, 
+        .dark-mode input[type=email]:focus, 
+        .dark-mode input[type=date]:focus, 
+        .dark-mode textarea:focus {
+            background-color: #e9db8e; /* Slightly darker pale yellow when focused */
+        }
+
+        /* Dark mode for the "Add" button and similar elements */
+        .dark-mode .addBtn, 
+        .dark-mode .save-button {
+            background-color: #555;
+            color: white;
+        }
+
+        .dark-mode .addBtn:hover, 
+        .dark-mode .save-button:hover {
+            background-color: #777;
+        }
         ul {
             list-style: none;
             padding-left: 0;
@@ -296,8 +423,35 @@
             <li><a href="/templates/{{ template.id }}">{{ template.title_text }}</a></li>
         {% endfor %}
     </ul>
-
     <div class="main">
+        {% for template in templates %}
+            <h2><a href="/templates/{{ template.id }}">{{ template.title_text }}</a></h2>
+            <ul id="myUL">
+                {% if template.id|slice:":11" == "predefined_" %}
+
+                    <!-- Handle predefined templates -->
+                    {% for item in template.items %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                {% else %}
+                    <!-- Handle user-saved templates -->
+                    {% for template_item in template.templateitem_set.all %}
+                        <li>{{ template_item }}</li>
+                    {% endfor %}
+                {% endif %}
+                <form action="/todo/new-from-template" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="template" id="template-{{ template.id }}" value="{{ template.id }}">
+                    <button class="add-template-button">Create Todo Using This Template</button>
+                </form>
+            </ul>
+        {% empty %}
+        <h2 id="noTempYet">You don't have any template!</h2>
+        {% endfor %}
+    </div>
+
+
+    <!-- <div class="main">
         {% for template in templates %}
             <h2><a href="/templates/{{ template.id }}">{{ template.title_text }}</a></h2>
             <ul id="myUL">
@@ -313,9 +467,27 @@
         {% empty %}
         <h2 id="noTempYet">You don't have any template!</h2>
         {% endfor %}
-    </div>
+    </div> -->
 </body>
 <script>
 
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        
+        // Save the user's preference in localStorage
+        if (document.body.classList.contains('dark-mode')) {
+            localStorage.setItem('theme', 'dark');
+        } else {
+            localStorage.setItem('theme', 'light');
+        }
+    }
+
+    // Load the user's preference from localStorage when the page loads
+    window.onload = function() {
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+    }
 </script>
+
 </html>
