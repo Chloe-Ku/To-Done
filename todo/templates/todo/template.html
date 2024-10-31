@@ -296,8 +296,35 @@
             <li><a href="/templates/{{ template.id }}">{{ template.title_text }}</a></li>
         {% endfor %}
     </ul>
-
     <div class="main">
+        {% for template in templates %}
+            <h2><a href="/templates/{{ template.id }}">{{ template.title_text }}</a></h2>
+            <ul id="myUL">
+                {% if template.id|slice:":11" == "predefined_" %}
+
+                    <!-- Handle predefined templates -->
+                    {% for item in template.items %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                {% else %}
+                    <!-- Handle user-saved templates -->
+                    {% for template_item in template.templateitem_set.all %}
+                        <li>{{ template_item }}</li>
+                    {% endfor %}
+                {% endif %}
+                <form action="/todo/new-from-template" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="template" id="template-{{ template.id }}" value="{{ template.id }}">
+                    <button class="add-template-button">Create Todo Using This Template</button>
+                </form>
+            </ul>
+        {% empty %}
+        <h2 id="noTempYet">You don't have any template!</h2>
+        {% endfor %}
+    </div>
+
+
+    <!-- <div class="main">
         {% for template in templates %}
             <h2><a href="/templates/{{ template.id }}">{{ template.title_text }}</a></h2>
             <ul id="myUL">
@@ -313,7 +340,7 @@
         {% empty %}
         <h2 id="noTempYet">You don't have any template!</h2>
         {% endfor %}
-    </div>
+    </div> -->
 </body>
 <script>
 

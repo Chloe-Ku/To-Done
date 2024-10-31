@@ -78,7 +78,54 @@ def index(request, list_id=0):
     }
     return render(request, 'todo/index.html', context)
 
-# Create a new to-do list from templates and redirect to the to-do list homepage
+#################
+def get_templates(request):
+    if not request.user.is_authenticated:
+        return redirect("/login")
+    
+    # Fetch user-saved templates from the database
+    user_templates = Template.objects.filter(user_id_id=request.user.id)
+    
+    # Predefined grocery templates
+    predefined_templates = [
+        {
+            'title_text': 'Weekly Groceries',
+            'items': ['Milk', 'Eggs', 'Bread', 'Butter', 'Fruits', 'Vegetables'],
+        },
+        {
+            'title_text': 'Party Grocery Shopping',
+            'items': ['Chips', 'Soda', 'Burgers', 'Buns', 'Ketchup', 'Cheese'],
+        },
+        {
+            'title_text': 'Healthy Groceries',
+            'items': ['Quinoa', 'Spinach', 'Broccoli', 'Almonds', 'Oatmeal', 'Yogurt'],
+        },
+    ]
+
+    # Create dummy Template objects for predefined templates
+    class PredefinedTemplate:
+        def __init__(self, title_text, items, id):
+            self.title_text = title_text
+            self.items = items
+            self.id = id  # Assign unique IDs for predefined templates
+
+        def templateitem_set(self):
+            return self.items
+
+    # Convert predefined templates to objects that mimic Template model
+    predefined_template_objects = [
+        PredefinedTemplate(template['title_text'], template['items'], f"predefined_{i}")
+        for i, template in enumerate(predefined_templates)
+    ]
+
+    # Combine user-saved and predefined templates
+    templates = list(user_templates) + predefined_template_objects
+    print(templates)
+
+    # Pass the combined list of templates to the context
+    return render(request, 'template.html', {'templates': templates})
+
+#Create a new to-do list from templates and redirect to the to-do list homepage
 def todo_from_template(request):
     if not request.user.is_authenticated:
         return redirect("/login")
@@ -103,7 +150,64 @@ def todo_from_template(request):
         )
     return redirect("/todo")
 
+# def todo_from_template(request):
+#     if not request.user.is_authenticated:
+#         return redirect("/login")
+    
+#     template_id = request.POST.get('template_id')  # Template ID from form
 
+#     if template_id.startswith('predefined_'):  # Check if it's a predefined template
+#         template_index = int(template_id.split('_')[1])
+#         predefined_templates = [
+#             {
+#                 'title_text': 'Weekly Groceries',
+#                 'items': ['Milk', 'Eggs', 'Bread', 'Butter', 'Fruits', 'Vegetables'],
+#             },
+#             {
+#                 'title_text': 'Party Grocery Shopping',
+#                 'items': ['Chips', 'Soda', 'Burgers', 'Buns', 'Ketchup', 'Cheese'],
+#             },
+#             {
+#                 'title_text': 'Healthy Groceries',
+#                 'items': ['Quinoa', 'Spinach', 'Broccoli', 'Almonds', 'Oatmeal', 'Yogurt'],
+#             },
+#         ]
+#         selected_template = predefined_templates[template_index]
+        
+#         # Create a new list from predefined template
+#         todo = List.objects.create(
+#             title_text=selected_template['title_text'],
+#             created_on=timezone.now(),
+#             updated_on=timezone.now(),
+#             user_id=request.user
+#         )
+        
+#         # Add the items from the predefined template
+#         for item in selected_template['items']:
+#             ListItem.objects.create(
+#                 item_name=item,
+#                 created_on=timezone.now(),
+#                 list=todo,
+#                 is_done=False
+#             )
+#     else:
+#         # Handle user-saved templates (existing functionality)
+#         fetched_template = get_object_or_404(Template, pk=template_id)
+#         todo = List.objects.create(
+#             title_text=fetched_template.title_text,
+#             created_on=timezone.now(),
+#             updated_on=timezone.now(),
+#             user_id=request.user
+#         )
+#         for template_item in fetched_template.templateitem_set.all():
+#             ListItem.objects.create(
+#                 item_name=template_item.item_text,
+#                 created_on=timezone.now(),
+#                 list=todo,
+#                 is_done=False
+#             )
+
+#     return redirect("/todo")
 # Create a new Template from existing to-do list and redirect to the templates list page
 def template_from_todo(request):
     if not request.user.is_authenticated:
